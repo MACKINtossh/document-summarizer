@@ -1,16 +1,43 @@
 import { useEffect, useState } from "react";
 import { copy, linkIcon, loader, tick } from "../assets";
+import { useLazyGetSummaryQuery } from "../services/article";
 
 const Demo = () => {
   const [article, setArticle] = useState({
     url: "",
-
     summary: "",
   });
 
+  const [allArticles, setAllArticles] = useState([]);
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  useEffect(() => {
+    const articlesFromLocalStorage = JSON.parse(
+      localStorage.getItem("articles")
+    );
+
+    if (articlesFromLocalStorage) {
+      setAllArticles(articlesFromLocalStorage);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     // fetch summary
-    alert("Submitted");
+    e.preventDefault();
+    const { data } = await getSummary({ articleUrl: article.url });
+
+    if (data?.summary) {
+      const newArticle = { ...article, summary: data.summary };
+
+      const updatedAllArticles = [newArticle, ...allArticles];
+
+      setArticle(newArticle);
+      setAllArticles(updatedAllArticles);
+
+      console.log(newArticle);
+
+      localStorage.setItem("articles", JSON.stringify(updatedAllArticles));
+    }
   };
 
   return (
@@ -32,15 +59,19 @@ const Demo = () => {
             value={article.url}
             onChange={(e) =>
               setArticle({
+                // "spreading" in the current article state, then setting the url to be equal to e.target.value
                 ...article,
                 url: e.target.value,
               })
             }
             required
-            className="url_input peer"
+            className="url_input peer" // Peer, links the style of the peer element
           />
           <button
+            // Type:"submit" because we are inside of a form
             type="submit"
+            // peer-focus: is how we implement the linked styling.
+            // This means that when we focus the input, the button will be focused as well
             className="submit_btn peer-focus:border-gray-700 peer-focus:text-gray-700"
           >
             Submit!
