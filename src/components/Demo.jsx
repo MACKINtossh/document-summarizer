@@ -79,6 +79,23 @@ const Demo = () => {
         </form>
 
         {/* BROWSER HISTORY */}
+
+        <div className=" flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {allArticles.map((article, index) => (
+            <div
+              key={`link-${index}`}
+              onClick={() => setArticle(item)}
+              className="link_card"
+            >
+              <div className="copy_btn">
+                <img src={copy} alt="copy_icon" className="" />
+              </div>
+              <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
+                {article.url}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* DISPLAY RESULTS */}
